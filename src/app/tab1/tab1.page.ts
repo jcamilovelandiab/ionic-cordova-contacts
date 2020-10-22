@@ -7,6 +7,58 @@ import { Component } from '@angular/core';
 })
 export class Tab1Page {
 
-  constructor() {}
+  public contacts;
+
+  constructor(
+  ) {
+  }
+
+  searchContact(){
+    let readContactsPromise = (response) => {
+      console.log(response);
+    }
+    let requestPermissionPromise = (response) => {
+      console.log(response);
+      if(response.read!==undefined && response.read===true){
+        this.readContacts(readContactsPromise);
+      }
+    }
+    let hasPermissionPromise = (response) => {
+      console.log(response);
+      if(response.read!==undefined){
+        if(response.read===false){
+          console.log('needs to request permission');
+          this.requestPermission(requestPermissionPromise);
+        }else if(response.read===true){
+          this.readContacts(readContactsPromise);
+        }
+      }
+    }
+    this.hasPermission(hasPermissionPromise);
+  }
+
+  hasPermission(promise){
+    window.ContactsX.hasPermission(function(success) {
+      promise(success)
+    }, function (error) {
+      promise(error);
+    });
+  }
+
+  requestPermission(promise){
+    window.ContactsX.requestPermission(function(success) {
+      promise(success);
+    }, function (error) {
+      promise(error);
+    });
+  }
+
+  readContacts(promise){
+    window.ContactsX.find(function(success) {
+      promise(success);
+    }, function (error) {
+      promise(error);
+    });
+  }
 
 }
