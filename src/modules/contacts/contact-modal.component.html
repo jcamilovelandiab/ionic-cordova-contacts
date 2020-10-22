@@ -1,0 +1,36 @@
+<ion-header translucent>
+    <ion-toolbar>
+        <ion-title>Contacts</ion-title>
+        <ion-buttons slot="end">
+            <ion-button (click)="dismissModal()">Close</ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+<ion-content fullscreen>
+    <ion-list>
+        <div *ngFor="let contact of displayContacts; let i = index;">
+            <ion-item
+                *ngIf="!!contact && contact.phoneNumbers && contact.displayName"
+                (click)="selectContact(contact.phoneNumbers[0], i, contact.displayName)"
+                button
+            >
+                <ion-avatar slot="start">
+                    <img src="https://gravatar.com/avatar/dba6bae8c566f9d4041fb9cd9ada7741?d=identicon&f=y">
+                </ion-avatar>
+                <ion-label>
+                    <h2>{{contact.displayName}}</h2>
+                    <p>{{contact.phoneNumbers[0]}}</p>
+                </ion-label>
+                <ion-ripple-effect></ion-ripple-effect>
+            </ion-item>
+        </div>
+    </ion-list>
+    <ion-infinite-scroll
+        *ngIf="enablePagination"
+        threshold="100px"
+        (ionInfinite)="loadNextPage($event)"
+    >
+        <ion-infinite-scroll-content loadingSpinner="bubbles" loadingText="Loading more contacts...">
+        </ion-infinite-scroll-content>
+    </ion-infinite-scroll>
+</ion-content>

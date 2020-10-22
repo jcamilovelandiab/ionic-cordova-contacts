@@ -1,0 +1,17 @@
+/* Works - pass "my-custom-class" in cssClass to increase specificity */
+.contact-modal-component .modal-wrapper {
+  background: #222;
+}
+.contact-modal-component .user {
+  display: block;
+}
+
+.contact-modal-component .contact-container{
+  display:flex;
+  align-items: center;
+  margin:1px 0;
+}
+.ripple-parent {
+  position: relative;
+  overflow: hidden;
+}
