@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
+import { searchPhoneContacts } from '../phone-contacts-plugin';
 
 /**
  * @author Juan Camilo Velandia Botello.
@@ -19,15 +20,13 @@ export class ContactModalComponent implements OnInit {
     private contacts: any[];//An array with all saved contacts in the phone
     public displayContacts: any[];//All contacts displayed on the screen
 
-    ////Phone pattern to filter contacts. It is used to avoid emergency numbers.
-    static PHONE_NUMBER_REGEX: any = /^\+{0,1}[0-9 ]{9,17}$/;
-
     constructor(
         private modalCtrl: ModalController,
     ) {
     }
 
     ngOnInit(){
+        console.log('searching contacts...');
         this.searchContacts();
     }
 
@@ -36,81 +35,14 @@ export class ContactModalComponent implements OnInit {
      * It was necessary to define promises to control the plugin responses.
      */
     searchContacts(){
-        let readContactsPromise = (response) => {
-            if(Array.isArray(response)){
-                this.contacts = response.filter(
-                    user => (
-                        user &&
-                        user.displayName &&
-                        user.phoneNumbers &&
-                        user.phoneNumbers.length>0 &&
-                        ContactModalComponent.PHONE_NUMBER_REGEX.test(user.phoneNumbers[0])
-                    )
-                );
-                this.displayContacts = this.enablePagination ? 
-                    this.contacts.slice(0,this.limitContactsPerPage) : 
-                    this.displayContacts = this.contacts;
+        searchPhoneContacts({
+            success: (contacts) => {
+                console.log(contacts);
+                this.contacts = contacts;
+                this.displayContacts = contacts;
+            }, error: (error) => {
+                console.log(error);
             }
-        }
-        let requestPermissionPromise = (response) => {
-            console.log(response);
-            if(response.read!==undefined && response.read===true){
-                this.readContacts(readContactsPromise);
-            }
-        }
-        let hasPermissionPromise = (response) => {
-            console.log(response);
-            if(response.read!==undefined){
-                if(response.read===false){
-                    console.log('needs to request permission');
-                    this.requestPermission(requestPermissionPromise);
-                }else if(response.read===true){
-                    this.readContacts(readContactsPromise);
-                }
-            }
-        }
-        this.hasPermission(hasPermissionPromise);
-    }
-
-    /**
-     * Verifies that the app has permissions to request contacts,
-     * and when the plugin responds, it calls a promise
-     * @param promise 
-     */
-    hasPermission(promise){
-        window['ContactsX'].hasPermission(function(success) {
-            promise(success)
-        }, function (error) {
-            promise(error);
-        });
-    }
-
-    /**
-     * Asks for permissions to request contacts,
-     * and when the plugin responds, it calls a promise
-     * @param promise
-     */
-    requestPermission(promise){
-        if(window['ContactsX'] !== undefined){
-
-        }
-        window['ContactsX'].requestPermission(function(success) {
-            promise(success);
-        }, function (error) {
-            promise(error);
-        });
-    }
-
-    /**
-     * Requests all saved contacts from the phone,
-     * and when the plugin responds, it calls a promise
-     * @param promise
-     */
-    readContacts(promise){
-        window['ContactsX'].find(function(success) {
-            promise(success);
-        }, function (error) {
-            promise(error);
         });
     }
 
